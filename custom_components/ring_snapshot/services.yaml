@@ -1,11 +1,17 @@
 take_snapshot:
+  name: Take snapshot
+  description: Take one JPEG snapshot from an existing camera entity through Home Assistant's internal WebRTC camera API.
   fields:
     camera_entity:
+      name: Camera entity
+      description: Existing camera entity to use.
       required: true
       selector:
         entity:
           domain: camera
     filename:
+      name: Filename
+      description: Absolute path where the JPEG snapshot will be saved.
       required: true
       selector:
         text:

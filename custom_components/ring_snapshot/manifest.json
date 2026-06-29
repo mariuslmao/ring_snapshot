@@ -4,7 +4,8 @@
   "codeowners": [],
   "config_flow": false,
   "dependencies": ["camera"],
-  "documentation": "https://www.home-assistant.io/integrations/camera/",
+  "documentation": "https://github.com/mariuslmao/ring_snapshot",
+  "issue_tracker": "https://github.com/mariuslmao/ring_snapshot/issues",
   "iot_class": "local_polling",
   "requirements": ["aiortc>=1.9.0", "Pillow>=10.0.0"],
   "version": "0.1.0"
