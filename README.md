@@ -45,6 +45,17 @@ Settings -> Devices & services -> Add integration -> Ring Snapshot
 Select the camera entity that should be used as the default WebRTC stream
 source. You can change it later from the integration entry's configure menu.
 
+Automatic snapshot modes:
+
+- `disabled`: only take snapshots when the service is called
+- `auto`: take snapshots when the selected motion sensor turns on
+- `motion`: take snapshots when the selected motion sensor turns on
+- `interval`: take snapshots every configured number of seconds
+- `all`: take snapshots on motion, ding, and interval
+
+Because this integration does not authenticate with Ring directly, motion and
+ding triggers use existing Home Assistant binary sensor entities.
+
 Alternatively, add the integration domain to `configuration.yaml`:
 
 ```yaml

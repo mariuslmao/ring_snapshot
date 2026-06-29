@@ -3,6 +3,27 @@ DOMAIN = "ring_snapshot"
 SERVICE_TAKE_SNAPSHOT = "take_snapshot"
 
 ATTR_CAMERA_ENTITY = "camera_entity"
+ATTR_DING_ENTITY = "ding_entity"
 ATTR_FILENAME = "filename"
+ATTR_INTERVAL_SECONDS = "interval_seconds"
+ATTR_MOTION_ENTITY = "motion_entity"
+ATTR_SNAPSHOT_MODE = "snapshot_mode"
+
+DEFAULT_FILENAME = "/config/www/snapshots/ring_snapshot.jpg"
+DEFAULT_INTERVAL_SECONDS = 300
+
+SNAPSHOT_MODE_ALL = "all"
+SNAPSHOT_MODE_AUTO = "auto"
+SNAPSHOT_MODE_DISABLED = "disabled"
+SNAPSHOT_MODE_INTERVAL = "interval"
+SNAPSHOT_MODE_MOTION = "motion"
+
+SNAPSHOT_MODES = [
+    SNAPSHOT_MODE_DISABLED,
+    SNAPSHOT_MODE_AUTO,
+    SNAPSHOT_MODE_MOTION,
+    SNAPSHOT_MODE_INTERVAL,
+    SNAPSHOT_MODE_ALL,
+]
 
 SNAPSHOT_TIMEOUT = 30

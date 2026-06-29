@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import asyncio
+from datetime import timedelta
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -14,21 +16,38 @@ from homeassistant.components.camera import Camera
 from homeassistant.components.camera.const import StreamType
 from homeassistant.components.camera.helper import get_camera_from_entity_id
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_FILENAME
-from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.const import CONF_FILENAME, STATE_ON
+from homeassistant.core import Event, HomeAssistant, ServiceCall
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import config_validation as cv, entity_registry as er
+from homeassistant.helpers.event import (
+    async_track_state_change_event,
+    async_track_time_interval,
+)
 from homeassistant.util.ulid import ulid
 import voluptuous as vol
 from webrtc_models import RTCIceCandidateInit
 
 from .const import (
     ATTR_CAMERA_ENTITY,
+    ATTR_DING_ENTITY,
     ATTR_FILENAME,
+    ATTR_INTERVAL_SECONDS,
+    ATTR_MOTION_ENTITY,
+    ATTR_SNAPSHOT_MODE,
+    DEFAULT_FILENAME,
+    DEFAULT_INTERVAL_SECONDS,
     DOMAIN,
     SERVICE_TAKE_SNAPSHOT,
     SNAPSHOT_TIMEOUT,
+    SNAPSHOT_MODE_ALL,
+    SNAPSHOT_MODE_AUTO,
+    SNAPSHOT_MODE_DISABLED,
+    SNAPSHOT_MODE_INTERVAL,
+    SNAPSHOT_MODE_MOTION,
 )
+
+_LOGGER = logging.getLogger(__name__)
 
 SERVICE_SCHEMA = vol.Schema(
     {
@@ -49,6 +68,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Ring Snapshot from a config entry."""
 
     _async_register_services(hass)
+    await _async_setup_automatic_snapshots(hass, entry)
+    entry.async_on_unload(entry.add_update_listener(_async_update_listener))
     return True
 
 
@@ -77,7 +98,85 @@ def _async_register_services(hass: HomeAssistant) -> None:
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a Ring Snapshot config entry."""
 
+    for unsubscribe in hass.data.get(DOMAIN, {}).pop(entry.entry_id, []):
+        unsubscribe()
+
     return True
+
+
+async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Reload Ring Snapshot when options change."""
+
+    await hass.config_entries.async_reload(entry.entry_id)
+
+
+async def _async_setup_automatic_snapshots(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+) -> None:
+    """Set up automatic snapshot triggers for a config entry."""
+
+    mode = _entry_value(entry, ATTR_SNAPSHOT_MODE, SNAPSHOT_MODE_DISABLED)
+    if mode == SNAPSHOT_MODE_DISABLED:
+        return
+
+    camera_entity = _entry_value(entry, ATTR_CAMERA_ENTITY)
+    filename = _entry_value(entry, ATTR_FILENAME, DEFAULT_FILENAME)
+    interval_seconds = _entry_value(
+        entry,
+        ATTR_INTERVAL_SECONDS,
+        DEFAULT_INTERVAL_SECONDS,
+    )
+    snapshot_lock = asyncio.Lock()
+    unsubscribes = hass.data.setdefault(DOMAIN, {}).setdefault(entry.entry_id, [])
+
+    async def take_automatic_snapshot(reason: str) -> None:
+        """Take one automatic snapshot."""
+
+        if snapshot_lock.locked():
+            _LOGGER.debug("Skipping %s snapshot because one is already running", reason)
+            return
+
+        async with snapshot_lock:
+            try:
+                await _async_take_snapshot(hass, camera_entity, filename)
+            except Exception:
+                _LOGGER.exception("Error taking automatic %s snapshot", reason)
+
+    def track_binary_sensor(entity_id: str | None, reason: str) -> None:
+        """Track a binary sensor turning on."""
+
+        if not entity_id:
+            return
+
+        async def state_changed(event: Event) -> None:
+            new_state = event.data.get("new_state")
+            if new_state is None or new_state.state != STATE_ON:
+                return
+
+            await take_automatic_snapshot(reason)
+
+        unsubscribes.append(
+            async_track_state_change_event(hass, entity_id, state_changed)
+        )
+
+    if mode in (SNAPSHOT_MODE_AUTO, SNAPSHOT_MODE_MOTION, SNAPSHOT_MODE_ALL):
+        track_binary_sensor(_entry_value(entry, ATTR_MOTION_ENTITY), "motion")
+
+    if mode == SNAPSHOT_MODE_ALL:
+        track_binary_sensor(_entry_value(entry, ATTR_DING_ENTITY), "ding")
+
+    if mode in (SNAPSHOT_MODE_INTERVAL, SNAPSHOT_MODE_ALL):
+        async def interval_tick(now: Any) -> None:
+            await take_automatic_snapshot("interval")
+
+        unsubscribes.append(
+            async_track_time_interval(
+                hass,
+                interval_tick,
+                timedelta(seconds=interval_seconds),
+            )
+        )
 
 
 def _async_get_configured_camera_entity(hass: HomeAssistant) -> str:
@@ -95,6 +194,16 @@ def _async_get_configured_camera_entity(hass: HomeAssistant) -> str:
         translation_domain=DOMAIN,
         translation_key="camera_entity_required",
     )
+
+
+def _entry_value(
+    entry: ConfigEntry,
+    key: str,
+    default: Any | None = None,
+) -> Any:
+    """Return an option value, falling back to config entry data."""
+
+    return entry.options.get(key, entry.data.get(key, default))
 
 
 async def _async_take_snapshot(

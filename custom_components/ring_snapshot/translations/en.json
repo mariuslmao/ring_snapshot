@@ -6,7 +6,12 @@
         "title": "Ring Snapshot",
         "description": "Set up the Ring Snapshot service.",
         "data": {
-          "camera_entity": "Camera entity"
+          "camera_entity": "Camera entity",
+          "snapshot_mode": "Automatic snapshot mode",
+          "filename": "Snapshot filename",
+          "interval_seconds": "Interval in seconds",
+          "motion_entity": "Motion binary sensor",
+          "ding_entity": "Ding binary sensor"
         }
       }
     },
@@ -20,7 +25,12 @@
         "title": "Ring Snapshot",
         "description": "Choose the default camera used by the snapshot service.",
         "data": {
-          "camera_entity": "Camera entity"
+          "camera_entity": "Camera entity",
+          "snapshot_mode": "Automatic snapshot mode",
+          "filename": "Snapshot filename",
+          "interval_seconds": "Interval in seconds",
+          "motion_entity": "Motion binary sensor",
+          "ding_entity": "Ding binary sensor"
         }
       }
     }
