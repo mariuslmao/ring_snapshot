@@ -32,7 +32,7 @@ from .const import (
 
 SERVICE_SCHEMA = vol.Schema(
     {
-        vol.Required(ATTR_CAMERA_ENTITY): cv.entity_id,
+        vol.Optional(ATTR_CAMERA_ENTITY): cv.entity_id,
         vol.Required(ATTR_FILENAME): cv.string,
     }
 )
@@ -61,7 +61,8 @@ def _async_register_services(hass: HomeAssistant) -> None:
     async def take_snapshot(call: ServiceCall) -> None:
         await _async_take_snapshot(
             hass,
-            call.data[ATTR_CAMERA_ENTITY],
+            call.data.get(ATTR_CAMERA_ENTITY)
+            or _async_get_configured_camera_entity(hass),
             call.data[ATTR_FILENAME],
         )
 
@@ -70,6 +71,29 @@ def _async_register_services(hass: HomeAssistant) -> None:
         SERVICE_TAKE_SNAPSHOT,
         take_snapshot,
         schema=SERVICE_SCHEMA,
+    )
+
+
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Unload a Ring Snapshot config entry."""
+
+    return True
+
+
+def _async_get_configured_camera_entity(hass: HomeAssistant) -> str:
+    """Return the configured default camera entity."""
+
+    entries = hass.config_entries.async_entries(DOMAIN)
+    for entry in entries:
+        camera_entity = entry.options.get(ATTR_CAMERA_ENTITY) or entry.data.get(
+            ATTR_CAMERA_ENTITY
+        )
+        if camera_entity:
+            return camera_entity
+
+    raise ServiceValidationError(
+        translation_domain=DOMAIN,
+        translation_key="camera_entity_required",
     )
 
 

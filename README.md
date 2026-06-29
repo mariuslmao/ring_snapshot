@@ -42,6 +42,9 @@ After installation, add **Ring Snapshot** in Home Assistant:
 Settings -> Devices & services -> Add integration -> Ring Snapshot
 ```
 
+Select the camera entity that should be used as the default WebRTC stream
+source. You can change it later from the integration entry's configure menu.
+
 Alternatively, add the integration domain to `configuration.yaml`:
 
 ```yaml
@@ -63,13 +66,12 @@ Call:
 ```yaml
 service: ring_snapshot.take_snapshot
 data:
-  camera_entity: camera.front_door
   filename: /config/www/snapshots/front_door.jpg
 ```
 
 Fields:
 
-- `camera_entity`: existing `camera` entity to use
+- `camera_entity`: optional existing `camera` entity to use; if omitted, the configured default camera is used
 - `filename`: absolute path where the JPEG file will be written
 
 ## Requirements

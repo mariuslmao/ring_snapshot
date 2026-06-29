@@ -4,11 +4,25 @@
     "step": {
       "user": {
         "title": "Ring Snapshot",
-        "description": "Set up the Ring Snapshot service."
+        "description": "Set up the Ring Snapshot service.",
+        "data": {
+          "camera_entity": "Camera entity"
+        }
       }
     },
     "abort": {
       "already_configured": "Ring Snapshot is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Ring Snapshot",
+        "description": "Choose the default camera used by the snapshot service.",
+        "data": {
+          "camera_entity": "Camera entity"
+        }
+      }
     }
   },
   "services": {
@@ -48,6 +62,9 @@
     },
     "snapshot_timeout": {
       "message": "Timed out waiting for a video frame from {entity_id}."
+    },
+    "camera_entity_required": {
+      "message": "Select a camera in the Ring Snapshot integration settings or provide camera_entity in the service call."
     }
   }
 }

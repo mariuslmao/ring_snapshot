@@ -4,8 +4,8 @@ take_snapshot:
   fields:
     camera_entity:
       name: Camera entity
-      description: Existing camera entity to use.
-      required: true
+      description: Existing camera entity to use. If omitted, the camera selected in the integration settings is used.
+      required: false
       selector:
         entity:
           domain: camera
