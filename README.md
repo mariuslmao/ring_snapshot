@@ -28,7 +28,11 @@ config/custom_components/ring_snapshot
 
 Restart Home Assistant.
 
-For HACS custom repositories, add this repository as an integration repository.
+For HACS custom repositories, add this repository with type `Integration`.
+
+Do not select `AppDaemon`, `App`, `Dashboard`, or `Plugin`. If HACS says this
+repository "is not a valid app repository", the wrong repository type was
+selected.
 
 ## Configuration
 
