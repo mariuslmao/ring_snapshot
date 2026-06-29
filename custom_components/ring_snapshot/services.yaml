@@ -1,0 +1,12 @@
+take_snapshot:
+  fields:
+    camera_entity:
+      required: true
+      selector:
+        entity:
+          domain: camera
+    filename:
+      required: true
+      selector:
+        text:
+          type: text

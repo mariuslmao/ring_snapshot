@@ -1,0 +1,42 @@
+{
+  "title": "Ring Snapshot",
+  "services": {
+    "take_snapshot": {
+      "name": "Take snapshot",
+      "description": "Takes one JPEG snapshot from an existing camera entity through Home Assistant's internal WebRTC camera API.",
+      "fields": {
+        "camera_entity": {
+          "name": "Camera entity",
+          "description": "The existing camera entity to use."
+        },
+        "filename": {
+          "name": "Filename",
+          "description": "Absolute path where the JPEG snapshot will be saved."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "filename_not_absolute": {
+      "message": "Filename must be an absolute path: {filename}"
+    },
+    "filename_not_allowed": {
+      "message": "Cannot write {filename}; add the directory to allowlist_external_dirs."
+    },
+    "entity_not_registered": {
+      "message": "{entity_id} is not in the entity registry."
+    },
+    "entity_not_camera": {
+      "message": "{entity_id} is not a camera entity."
+    },
+    "entity_not_loaded": {
+      "message": "{entity_id} is registered but not currently loaded."
+    },
+    "webrtc_not_supported": {
+      "message": "{entity_id} does not support WebRTC."
+    },
+    "snapshot_timeout": {
+      "message": "Timed out waiting for a video frame from {entity_id}."
+    }
+  }
+}
