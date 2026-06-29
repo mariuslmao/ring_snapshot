@@ -2,7 +2,7 @@
   "domain": "ring_snapshot",
   "name": "Ring Snapshot",
   "codeowners": [],
-  "config_flow": false,
+  "config_flow": true,
   "dependencies": ["camera"],
   "documentation": "https://github.com/mariuslmao/ring_snapshot",
   "issue_tracker": "https://github.com/mariuslmao/ring_snapshot/issues",

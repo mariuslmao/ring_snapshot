@@ -1,5 +1,16 @@
 {
   "title": "Ring Snapshot",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Ring Snapshot",
+        "description": "Set up the Ring Snapshot service."
+      }
+    },
+    "abort": {
+      "already_configured": "Ring Snapshot is already configured."
+    }
+  },
   "services": {
     "take_snapshot": {
       "name": "Take snapshot",

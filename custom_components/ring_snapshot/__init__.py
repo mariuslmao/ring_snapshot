@@ -13,6 +13,7 @@ from homeassistant.components import camera
 from homeassistant.components.camera import Camera
 from homeassistant.components.camera.const import StreamType
 from homeassistant.components.camera.helper import get_camera_from_entity_id
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_FILENAME
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
@@ -40,6 +41,23 @@ SERVICE_SCHEMA = vol.Schema(
 async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
     """Set up the Ring Snapshot integration."""
 
+    _async_register_services(hass)
+    return True
+
+
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Set up Ring Snapshot from a config entry."""
+
+    _async_register_services(hass)
+    return True
+
+
+def _async_register_services(hass: HomeAssistant) -> None:
+    """Register integration services."""
+
+    if hass.services.has_service(DOMAIN, SERVICE_TAKE_SNAPSHOT):
+        return
+
     async def take_snapshot(call: ServiceCall) -> None:
         await _async_take_snapshot(
             hass,
@@ -53,7 +71,6 @@ async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
         take_snapshot,
         schema=SERVICE_SCHEMA,
     )
-    return True
 
 
 async def _async_take_snapshot(

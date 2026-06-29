@@ -36,7 +36,13 @@ selected.
 
 ## Configuration
 
-Add the integration domain to `configuration.yaml`:
+After installation, add **Ring Snapshot** in Home Assistant:
+
+```text
+Settings -> Devices & services -> Add integration -> Ring Snapshot
+```
+
+Alternatively, add the integration domain to `configuration.yaml`:
 
 ```yaml
 ring_snapshot:
